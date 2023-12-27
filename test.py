@@ -1,7 +1,7 @@
 import clickhouse_connect
 import pandas as pd
 
-from sqlalchemy import create_engine
+
 import sqlite3 
 sqlite_file =  '/workspace/moniepoint_DE/taxi.db'
 
@@ -22,7 +22,25 @@ GROUP BY DATE_FORMAT(pickup_date, '%Y-%m')
 ORDER BY month
 ''')
 print(result)
-engine = create_engine(f'sqlite:///{sqlite_file}', echo=False)
+conn = sqlite3.connect('/workspace/moniepoint_DE/taxi.db')
 
-# Write the DataFrame to the SQLite database
-result.to_sql('taxi_data', con=engine, if_exists='append', index=False)
+cursor = conn.cursor()
+
+cursor.execute('''CREATE TABLE IF NOT EXISTS taxi_data (
+    month TEXT,
+    avg_trips_saturday FLOAT,
+    avg_fare_saturday FLOAT,
+    avg_duration_saturday_mins FLOAT,
+    avg_trips_sunday FLOAT,
+    avg_fare_sunday FLOAT,
+    avg_duration_sunday_mins FLOAT
+
+)''')
+
+data_tuples = list(result.itertuples(index=False, name=None))
+
+cursor.executemany("INSERT INTO taxi_data VALUES (?, ?, ?, ?, ?, ?, ?)", data_tuples)
+
+conn.commit()
+conn.close()
+

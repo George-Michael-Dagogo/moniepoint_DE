@@ -3,6 +3,8 @@ from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import sqlite3
 from main import get_data_from_clickhouse, write_data_to_sqlite
+import clickhouse_connect
+
 
 default_args = {
     'owner': 'Michael',
@@ -11,7 +13,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=5)
 }
 
 dag = DAG('taxi_metrics_pipeline', default_args=default_args, schedule='@daily')

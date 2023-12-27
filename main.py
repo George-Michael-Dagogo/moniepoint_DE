@@ -3,6 +3,7 @@ import sqlite3
 
 
 
+
 def get_data_from_clickhouse(host, user, password, query,port):
     
 
@@ -20,12 +21,32 @@ def get_data_from_clickhouse(host, user, password, query,port):
 
 def write_data_to_sqlite(data):
     try:
-        data.to_sql('my_table', '/workspace/moniepoint_DE/taxi.db', driver='sqlite3')
+        conn = sqlite3.connect('/workspace/moniepoint_DE/taxi.db')
+
+        cursor = conn.cursor()
+
+        cursor.execute('''CREATE TABLE IF NOT EXISTS taxi_data (
+            month TEXT,
+            avg_trips_saturday FLOAT,
+            avg_fare_saturday FLOAT,
+            avg_duration_saturday_mins FLOAT,
+            avg_trips_sunday FLOAT,
+            avg_fare_sunday FLOAT,
+            avg_duration_sunday_mins FLOAT
+
+        )''')
+
+        data_tuples = list(data.itertuples(index=False, name=None))
+
+        cursor.executemany("INSERT INTO taxi_data VALUES (?, ?, ?, ?, ?, ?, ?)", data_tuples)
+
 
     except Exception as e:
         print("Error writing data to SQLite:", e)
 
-
+    finally:
+        conn.commit()
+        conn.close()
 
 
 
