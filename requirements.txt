@@ -1,0 +1,4 @@
+apache-airflow==2.8.0
+clickhouse_connect==0.6.23
+pandas==2.1.4
+SQLAlchemy==2.0.22
